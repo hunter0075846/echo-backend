@@ -118,6 +118,7 @@ model GroupMessage {
   id          String   @id @default(uuid())
   groupId     String   @map("group_id")
   senderId    String   @map("sender_id")
+  senderName  String?  @map("sender_name")
   type        String   @default("text") // text, image, topic_card
   content     String
   mediaUrl    String?  @map("media_url")
