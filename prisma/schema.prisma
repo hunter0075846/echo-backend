@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String   @id @default(uuid())
+  phone                 String   @unique
+  nickname              String?
+  avatar                String?
+  gender                String?
+  birthday              DateTime?
+  dailyTopicQuota       Int      @default(0) @map("daily_topic_quota")
+  maxDailyTopicQuota    Int      @default(10) @map("max_daily_topic_quota")
+  quotaResetAt          DateTime? @map("quota_reset_at")
+  anonymousMessageCount Int      @default(0) @map("anonymous_message_count")
+  anonymousQuotaResetAt DateTime? @map("anonymous_quota_reset_at")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  // 关系
+  topics        Topic[]
+  topicComments TopicComment[]
+  ownedGroups   Group[]        @relation("UserOwnedGroups")
+  groupMembers  GroupMember[]
+  groupMessages GroupMessage[]
+  memories      Memory[]
+  votes         Vote[]
+  anonymousMessages AnonymousMessage[]
+
+  @@map("users")
+}
+
+model Topic {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  imageUrl    String?  @map("image_url")
+  sourceUrl   String?  @map("source_url")
+  sourceType  String   @map("source_type") // link, image
+  authorId    String   @map("author_id")
+  viewCount   Int      @default(0) @map("view_count")
+  commentCount Int     @default(0) @map("comment_count")
+  likeCount   Int      @default(0) @map("like_count")
+  forwardCount Int     @default(0) @map("forward_count")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // 关系
+  author        User           @relation(fields: [authorId], references: [id])
+  comments      TopicComment[]
+  groupTopicCards GroupTopicCard[]
+
+  @@map("topics")
+}
+
+model TopicComment {
+  id        String   @id @default(uuid())
+  topicId   String   @map("topic_id")
+  authorId  String   @map("author_id")
+  content   String
+  parentId  String?  @map("parent_id")
+  likeCount Int      @default(0) @map("like_count")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // 关系
+  topic  Topic @relation(fields: [topicId], references: [id])
+  author User  @relation(fields: [authorId], references: [id])
+
+  @@map("topic_comments")
+}
+
+model Group {
+  id            String   @id @default(uuid())
+  name          String
+  avatar        String?
+  description   String?
+  ownerId       String   @map("owner_id")
+  maxMembers    Int      @default(10) @map("max_members")
+  inviteCode    String?  @unique @map("invite_code")
+  inviteExpiresAt DateTime? @map("invite_expires_at")
+  isDeleted     Boolean  @default(false) @map("is_deleted")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // 关系
+  owner    User           @relation("UserOwnedGroups", fields: [ownerId], references: [id])
+  members  GroupMember[]
+  messages GroupMessage[]
+  topicCards GroupTopicCard[]
+  memories Memory[]
+
+  @@map("groups")
+}
+
+model GroupMember {
+  id        String   @id @default(uuid())
+  groupId   String   @map("group_id")
+  userId    String   @map("user_id")
+  role      String   @default("member") // owner, admin, member
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  // 关系
+  group Group @relation(fields: [groupId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@unique([groupId, userId])
+  @@map("group_members")
+}
+
+model GroupMessage {
+  id          String   @id @default(uuid())
+  groupId     String   @map("group_id")
+  senderId    String   @map("sender_id")
+  type        String   @default("text") // text, image, topic_card
+  content     String
+  mediaUrl    String?  @map("media_url")
+  isAnonymous Boolean  @default(false) @map("is_anonymous")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // 关系
+  group  Group @relation(fields: [groupId], references: [id])
+  sender User  @relation(fields: [senderId], references: [id])
+
+  @@map("group_messages")
+}
+
+model GroupTopicCard {
+  id              String   @id @default(uuid())
+  groupId         String   @map("group_id")
+  topicId         String   @map("topic_id")
+  guideText       String?  @map("guide_text")
+  participantCount Int     @default(0) @map("participant_count")
+  isExpired       Boolean  @default(false) @map("is_expired")
+  expiredAt       DateTime? @map("expired_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // 关系
+  group Group @relation(fields: [groupId], references: [id])
+  topic Topic @relation(fields: [topicId], references: [id])
+
+  @@map("group_topic_cards")
+}
+
+model AnonymousMessage {
+  id           String   @id @default(uuid())
+  groupId      String   @map("group_id")
+  realUserId   String   @map("real_user_id")
+  content      String
+  hasVote      Boolean  @default(false) @map("has_vote")
+  voteOptions  String[] @map("vote_options")
+  voteResults  Json?    @map("vote_results")
+  likeCount    Int      @default(0) @map("like_count")
+  replyCount   Int      @default(0) @map("reply_count")
+  isFlagged    Boolean  @default(false) @map("is_flagged")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // 关系
+  realUser User @relation(fields: [realUserId], references: [id])
+
+  @@map("anonymous_messages")
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  groupId   String   @map("group_id")
+  topicId   String   @map("topic_id")
+  userId    String   @map("user_id")
+  question  String
+  options   String[]
+  results   Json
+  userVote  String?  @map("user_vote")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // 关系
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("votes")
+}
+
+model Memory {
+  id          String   @id @default(uuid())
+  groupId     String   @map("group_id")
+  type        String   // topic_forward, vote_result, anonymous_comment, chat_highlight, manual
+  title       String?
+  content     String
+  relatedUserId String? @map("related_user_id")
+  mediaUrl    String?  @map("media_url")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // 关系
+  group       Group @relation(fields: [groupId], references: [id])
+  relatedUser User? @relation(fields: [relatedUserId], references: [id])
+
+  @@map("memories")
+}
+
+model AppConfig {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("app_configs")
+}
