@@ -1,8 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
+  // 输出为 standalone 模式，适合 Vercel 部署
+  output: 'standalone',
+  
+  // 禁用静态生成 API 路由
+  staticPageGenerationTimeout: 1000,
+  
   async headers() {
     return [
       {
