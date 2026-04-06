@@ -4,6 +4,9 @@ import { getCurrentUser } from '@/lib/auth';
 import { moderateContent } from '@/lib/ai';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const commentSchema = z.object({
   content: z.string().min(1, '评论内容不能为空').max(500, '评论内容不能超过500字'),
   parentId: z.string().optional(),

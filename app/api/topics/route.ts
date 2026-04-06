@@ -4,6 +4,9 @@ import { getCurrentUser } from '@/lib/auth';
 import { generateTopicTitle, generateTopicDescription, moderateContent } from '@/lib/ai';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const createTopicSchema = z.object({
   sourceType: z.enum(['link', 'image']),
   sourceUrl: z.string().optional(),

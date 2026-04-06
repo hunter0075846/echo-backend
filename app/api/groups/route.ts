@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const createGroupSchema = z.object({
   name: z.string().min(1, '群聊名称不能为空').max(50, '群聊名称不能超过50字'),
   description: z.string().max(200, '描述不能超过200字').optional(),

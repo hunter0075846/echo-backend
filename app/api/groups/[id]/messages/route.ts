@@ -4,6 +4,9 @@ import { getCurrentUser } from '@/lib/auth';
 import { moderateContent } from '@/lib/ai';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const sendMessageSchema = z.object({
   content: z.string().min(1, '消息内容不能为空').max(1000, '消息内容不能超过1000字'),
   mediaUrl: z.string().optional(),

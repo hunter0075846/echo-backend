@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma';
 import { generateToken, generatePhoneCode } from '@/lib/auth';
 import { z } from 'zod';
 
+// 禁用静态生成，避免构建时连接数据库
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const loginSchema = z.object({
   phone: z.string().regex(/^1[3-9]\d{9}$/, '手机号格式不正确'),
   code: z.string().regex(/^\d{6}$/, '验证码必须是6位数字'),
