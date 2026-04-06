@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAIConfig } from '@/lib/ai';
 import { getCurrentUser } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // 获取 AI 配置信息（仅管理员可用）
 export async function GET(request: NextRequest) {
   try {
