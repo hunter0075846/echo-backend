@@ -82,6 +82,7 @@ model Group {
   description   String?
   ownerId       String   @map("owner_id")
   maxMembers    Int      @default(10) @map("max_members")
+  currentMembers Int     @default(1) @map("current_members")
   inviteCode    String?  @unique @map("invite_code")
   inviteExpiresAt DateTime? @map("invite_expires_at")
   isDeleted     Boolean  @default(false) @map("is_deleted")
