@@ -3,8 +3,14 @@ const nextConfig = {
   // 输出为 standalone 模式，适合 Vercel 部署
   output: 'standalone',
   
-  // 禁用静态生成 API 路由
-  staticPageGenerationTimeout: 1000,
+  // 禁用静态生成，所有页面都使用 SSR
+  staticPageGenerationTimeout: 1,
+  
+  //  experimental 配置
+  experimental: {
+    // 禁用构建时的页面优化
+    optimizeCss: false,
+  },
   
   async headers() {
     return [
