@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: '该手机号已注册' },
-        { status: 400 }
+        { error: '该手机号已注册，请直接登录' },
+        { status: 409 }
       );
     }
 
