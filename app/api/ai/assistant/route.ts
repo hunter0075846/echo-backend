@@ -32,13 +32,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userId = await verifyToken(token);
-    if (!userId) {
+    const payload = verifyToken(token);
+    if (!payload || !payload.userId) {
       return NextResponse.json(
         { error: '登录已过期' },
         { status: 401 }
       );
     }
+    const userId = payload.userId;
 
     // 获取请求参数
     const { message, groupId, history = [] } = await request.json();
@@ -121,8 +122,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const userId = await verifyToken(token);
-    if (!userId) {
+    const payload = verifyToken(token);
+    if (!payload || !payload.userId) {
       return NextResponse.json(
         { error: '登录已过期' },
         { status: 401 }
