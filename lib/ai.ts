@@ -46,7 +46,7 @@ const getProviderConfig = (): AIProviderConfig => {
 const config = getProviderConfig();
 
 // 初始化 OpenAI 客户端（兼容多种提供商）
-const openai = new OpenAI({
+export const openai = new OpenAI({
   apiKey: config.apiKey,
   baseURL: config.baseURL,
 });
